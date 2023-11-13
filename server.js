@@ -11,5 +11,6 @@ mongoose.connect(DB).then(con => {
     console.log(`server is running at port ${port}`);
   });
 });
+// console.log(process.argv);
 // console.log(app.get('env'));
 // console.log(process.env.PORT);

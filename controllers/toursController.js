@@ -1,4 +1,4 @@
-const Tour = require('../model/tour.js');
+const Tour = require('../model/tourModel.js');
 // const fs = require('fs');
 // const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 // exports.CheakID = (req, res, next, val) => {
@@ -14,8 +14,13 @@ const Tour = require('../model/tour.js');
 // };
 
 exports.GetAllTours = async (req, res) => {
-  // console.log(req.requetedTime);
   try {
+    const queryObj = { ...req.query };
+    // const queryObj2 = Object.assign(req.query);
+    // console.log(queryObj2);
+    const ExcludeQuery = ['page', 'limit', 'sort', 'fields'];
+    ExcludeQuery.forEach(el => delete queryObj[el]);
+    console.log(req.query, queryObj);
     const tours = await Tour.find();
     res.status(200).json({
       status: 'success',
