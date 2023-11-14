@@ -12,16 +12,47 @@ const Tour = require('../model/tourModel.js');
 //   }
 //   next();
 // };
-
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '3';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
 exports.GetAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
-    // const queryObj2 = Object.assign(req.query);
-    // console.log(queryObj2);
+    // EACH MONGODB QUERY RETURN ANOTHER QUERY UNTIL IT AWAIT IT TO GET THE DOCUMENT
+    // 1.EXCLUDING QUERY
     const ExcludeQuery = ['page', 'limit', 'sort', 'fields'];
     ExcludeQuery.forEach(el => delete queryObj[el]);
-    console.log(req.query, queryObj);
-    const tours = await Tour.find();
+    let queryString = JSON.stringify(queryObj);
+    queryString = queryString.replace('lte', '$lte'); //returns a string
+    let query = Tour.find(JSON.parse(queryString));
+    //2.SORT
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('createdAt');
+    }
+    //3.field limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+    //4.PAGINATION
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip > numTours) throw new Error('This page does not exist');
+    }
+    // EXECUTING QUERY
+    const tours = await query;
     res.status(200).json({
       status: 'success',
       result: tours.length,
