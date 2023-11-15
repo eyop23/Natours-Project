@@ -1,4 +1,5 @@
 const Tour = require('../model/tourModel.js');
+const ApiFeatures = require('./../utils/apiFeatures');
 // const fs = require('fs');
 // const tours = JSON.parse(fs.readFileSync('./dev-data/data/tours-simple.json'));
 // exports.CheakID = (req, res, next, val) => {
@@ -18,41 +19,49 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
+
 exports.GetAllTours = async (req, res) => {
   try {
-    const queryObj = { ...req.query };
+    console.log(req.query);
+    // const queryObj = { ...req.query };
     // EACH MONGODB QUERY RETURN ANOTHER QUERY UNTIL IT AWAIT IT TO GET THE DOCUMENT
     // 1.EXCLUDING QUERY
-    const ExcludeQuery = ['page', 'limit', 'sort', 'fields'];
-    ExcludeQuery.forEach(el => delete queryObj[el]);
-    let queryString = JSON.stringify(queryObj);
-    queryString = queryString.replace('lte', '$lte'); //returns a string
-    let query = Tour.find(JSON.parse(queryString));
+    // const ExcludeQuery = ['page', 'limit', 'sort', 'fields'];
+    // ExcludeQuery.forEach(el => delete queryObj[el]);
+    // let queryString = JSON.stringify(queryObj);
+    // queryString = queryString.replace('lte', '$lte'); //returns a string
+    // let query = Tour.find(JSON.parse(queryString));
     //2.SORT
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('createdAt');
-    }
+    // if (req.query.sort) {
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort('createdAt');
+    // }
     //3.field limiting
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select('-__v');
+    // }
     //4.PAGINATION
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip > numTours) throw new Error('This page does not exist');
-    }
+    // const page = this.queryString.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
+    // const skip = (page - 1) * limit;
+    // query = query.skip(skip).limit(limit);
+    // if (req.query.page) {
+    //   const numTours = await Tour.countDocuments();
+    //   if (skip > numTours) throw new Error('This page does not exist');
+    // }
     // EXECUTING QUERY
-    const tours = await query;
+    const features = new ApiFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .pagination(); // passing query obj n query string
+    console.log(features);
+    const tours = await features.query;
     res.status(200).json({
       status: 'success',
       result: tours.length,
