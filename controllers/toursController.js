@@ -39,7 +39,6 @@ exports.GetTour = async (req, res) => {
     const tour = await Tour.findById(id);
     res.status(200).json({
       status: 'success',
-      result: tour.length,
       data: {
         tour
       }
