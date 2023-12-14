@@ -8,7 +8,8 @@ class ApiFeatures {
     const ExcludeQuery = ['page', 'limit', 'sort', 'fields'];
     ExcludeQuery.forEach(el => delete queryObj[el]);
     let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace('lte', '$lte'); //returns a string
+    queryStr = queryStr.replace('gte', '$gte'); //returns a string
+    // console.log(queryStr, JSON.parse(queryStr));
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   }
