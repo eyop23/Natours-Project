@@ -4,6 +4,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 // 1.MiddleWare(order of middleware matters)
+console.log(process.env.NODE_ENV);
 app.use(express.json());
 app.use(express.static('public'));
 app.use((req, res, next) => {
@@ -12,6 +13,7 @@ app.use((req, res, next) => {
 });
 app.use((req, res, next) => {
   req.requetedTime = new Date().toISOString();
+  // console.log(x);
   next();
 });
 if (process.env.NODE_ENV === 'development') {
