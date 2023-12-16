@@ -1,17 +1,13 @@
-const Tour = require('../model/tourModel.js');
+const Tour = require('../models/tourModel.js');
+const catchAsync = require('../utils/catchAsync.js');
 const ApiFeatures = require('./../utils/apiFeatures');
-
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
-const catchAsync = fn => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(err => next(err));
-  };
-};
+
 exports.GetAllTours = catchAsync(async (req, res) => {
   // console.log(req.query);
 

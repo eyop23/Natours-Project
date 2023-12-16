@@ -25,12 +25,16 @@ const sendProdError = (res, err) => {
   }
 };
 const handleDuplicateFieldsDB = err => {
-  const message = err.keyValue.name;
-  return new AppError(message, 400);
+  console.log(err);
+  return new AppError(`:DuplicateFieldsDB:`, 400);
 };
 const handleCastError = err => {
   const message = `invalid ${err.path}:${err.value}`;
   return new AppError(message, 400);
+};
+const handleValidationError = err => {
+  // const message = err.errors.email.message;
+  return new AppError('ValidationError', 400);
 };
 module.exports = (err, req, res, next) => {
   //   console.log(err.stack);
@@ -40,7 +44,6 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
     if (err.name === 'CastError') error = handleCastError(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    // if ((error.name = 'validationError')) error = handleValidationError(error);
 
     sendDevError(error, res);
   } else if (process.env.NODE_ENV === 'production') {
