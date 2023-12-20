@@ -25,7 +25,6 @@ const sendProdError = (res, err) => {
   }
 };
 const handleDuplicateFieldsDB = err => {
-  console.log(err);
   return new AppError(`:DuplicateFieldsDB:`, 400);
 };
 const handleCastError = err => {
@@ -42,10 +41,11 @@ module.exports = (err, req, res, next) => {
   err.status = err.status || 'error';
   if (process.env.NODE_ENV === 'development') {
     let error = { ...err };
+    // console.log(error,err)
     if (err.name === 'CastError') error = handleCastError(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
 
-    sendDevError(error, res);
+    sendDevError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     sendProdError(err, res);
   }

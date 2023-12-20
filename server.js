@@ -8,10 +8,16 @@ process.on('uncaughtException', err => {
 dotenv.config({ path: './config.env' });
 const DB = process.env.MONGODB_CONNECTION;
 const app = require('./app');
-mongoose.connect(DB).then(con => {
-  // console.log(con.connections);
-  console.log('connected');
-});
+mongoose
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  })
+  .then(con => {
+    // console.log(con.connections);
+    console.log('connected');
+  });
 const port = process.env.PORT || 5000;
 const server = app.listen(port, () => {
   console.log(`server is running at port ${port}`);
