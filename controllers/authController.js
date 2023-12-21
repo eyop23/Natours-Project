@@ -13,7 +13,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    passwordConfrim: req.body.passwordConfrim
+    passwordConfrim: req.body.passwordConfrim,
+    passwordChangedAt: req.body.passwordChangedAt
   });
   const token = signToken(newUser._id);
   res.status(201).json({
@@ -36,10 +37,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const token = signToken(user._id);
   res.status(200).json({
     status: 'success',
-    token,
-    result: {
-      data: user
-    }
+    token
   });
 });
 exports.protect = catchAsync(async (req, res, next) => {
@@ -56,12 +54,27 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   // Verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRETKEY);
-  console.log(decoded);
-  // Get user from the token
+  // cheak if  user exist with the decoded data
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(new AppError('no user exist with this token', 401));
   }
-  console.log(currentUser);
+  if (await currentUser.changePasswordAfter(decoded.iat)) {
+    return next(
+      new AppError('user recently changed password! please login again', 401)
+    );
+  }
+  //GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
   next();
 });
+exports.restrictedTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('you have not permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};

@@ -10,7 +10,7 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.GetAllTours = catchAsync(async (req, res) => {
   // console.log(req.query);
-
+  // console.log(req.user);
   // EXECUTING QUERY
   const features = new ApiFeatures(Tour.find(), req.query)
     .filter()

@@ -35,16 +35,22 @@ const handleValidationError = err => {
   // const message = err.errors.email.message;
   return new AppError('ValidationError', 400);
 };
+const handleTokenExpiredError = err =>
+  new AppError(`${err.message},please login again`, 401);
+const handleJsonWebTokenError = err =>
+  new AppError(`${err.message},please login again`, 401);
 module.exports = (err, req, res, next) => {
   //   console.log(err.stack);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
   if (process.env.NODE_ENV === 'development') {
-    let error = { ...err };
+    // let error = { ...err };
     // console.log(error,err)
-    if (err.name === 'CastError') error = handleCastError(error);
-    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-
+    if (err.name === 'CastError') error = handleCastError(err);
+    if (err.code === 11000) err = handleDuplicateFieldsDB(err);
+    if (err.name === 'validattionError') err = handleValidationError(err);
+    if (err.name === 'JsonWebTokenError') err = handleJsonWebTokenError(err);
+    if (err.name === 'TokenExpiredError') err = handleTokenExpiredError(err);
     sendDevError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     sendProdError(err, res);
