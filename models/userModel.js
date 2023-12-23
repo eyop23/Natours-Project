@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
       message: 'password are not matched'
     }
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  },
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpiry: Date
@@ -48,8 +53,13 @@ userSchema.pre('save', async function(next) {
   next();
 });
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password' || this.isNew)) return next();
+  if (!this.isModified('password') || this.isNew) return next();
+  // console.log(this.isNew);
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+userSchema.pre(/^find/, function(next) {
+  this.find({ active: true });
   next();
 });
 // INSTANCE METHOD WHICH IS AVAILABLE IN ALL DOC IN CERTAIN COLLECTION
@@ -65,7 +75,6 @@ userSchema.methods.changePasswordAfter = async function(jwtTimeStamp) {
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    console.log(changedTimeStamp, jwtTimeStamp);
     return changedTimeStamp > jwtTimeStamp; // PASSWORD CHANGED
   }
   return false;
