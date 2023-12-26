@@ -9,6 +9,8 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tours');
 const userRouter = require('./routes/users');
+const environment = process.env.NODE_ENV;
+
 const app = express();
 // 1.GLOBAL MiddleWare(order of middleware matters)
 
@@ -16,8 +18,11 @@ const app = express();
 app.use(helmet());
 
 // DEVELOPMENT LOGGING
-if (process.env.NODE_ENV === 'development') {
+if (environment === 'development') {
   app.use(morgan('dev'));
+}
+if (environment === 'production') {
+  console.log('hello production');
 }
 
 // LIMIT REQUESET FROM SAME API
