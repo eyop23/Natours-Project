@@ -10,7 +10,6 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.GetAllTours = catchAsync(async (req, res) => {
   // console.log(req.query);
-  // console.log(req.user);
   // EXECUTING QUERY
   const features = new ApiFeatures(Tour.find(), req.query)
     .filter()
@@ -28,7 +27,7 @@ exports.GetAllTours = catchAsync(async (req, res) => {
 });
 exports.GetTour = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const tour = await Tour.findById(id);
+  const tour = await Tour.findById(id).populate('reviews');
   // if (!tour) {
   //   return res.status(404).json({
   //     status: 'failed',

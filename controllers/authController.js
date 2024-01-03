@@ -17,7 +17,7 @@ exports.restrictedTo = (...roles) => {
 };
 const signToken = id => {
   return jwt.sign({ id: id }, process.env.JWT_SECRETKEY, {
-    expiresIn: '10d'
+    expiresIn: process.env.JWT_EXPIRES_IN
   });
 };
 const createSendToken = (user, statusCode, res) => {
