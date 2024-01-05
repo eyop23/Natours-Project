@@ -61,13 +61,15 @@ exports.getAll = Model =>
   catchAsync(async (req, res) => {
     // EXECUTING QUERY
     let filter = {};
-    if (req.params.tourId) filter = { tourRef: req.params.tourId };
+    if (req.params.tourId) filter = { tour: req.params.tourId };
     const features = new ApiFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
       .pagination(); // passing query obj n query string
+    // const docs = await features.query.explain();
     const docs = await features.query;
+
     res.status(200).json({
       status: 'success',
       result: docs.length,

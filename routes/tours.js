@@ -15,14 +15,32 @@ const {
 } = require('./../controllers/toursController');
 // router.param('id', CheakID);
 router.use('/:tourId/reviews', reviewRouter);
+
 router.route('/top-5-cheap').get(aliasTopTours, GetAllTours);
 router.route('/tour-stat').get(getTourStats);
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
-router.route('/').get(authController.protect, GetAllTours).post(PostTour);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    authController.protect,
+    authController.restrictedTo('admin', 'lead-guide', 'guide'),
+    getMonthlyPlan
+  );
+router
+  .route('/')
+  .get(GetAllTours)
+  .post(
+    authController.protect,
+    authController.restrictedTo('admin', 'lead-guide'),
+    PostTour
+  );
 router
   .route('/:id')
   .get(GetTour)
-  .patch(UpdateTour)
+  .patch(
+    authController.protect,
+    authController.restrictedTo('admin', 'lead-guide'),
+    UpdateTour
+  )
   .delete(
     authController.protect,
     authController.restrictedTo('admin', 'lead-guide'),
