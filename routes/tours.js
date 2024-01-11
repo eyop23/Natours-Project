@@ -11,7 +11,8 @@ const {
   DeleteTour,
   aliasTopTours,
   getTourStats,
-  getMonthlyPlan
+  getMonthlyPlan,
+  getToursWithin
 } = require('./../controllers/toursController');
 // router.param('id', CheakID);
 router.use('/:tourId/reviews', reviewRouter);
@@ -25,6 +26,9 @@ router
     authController.restrictedTo('admin', 'lead-guide', 'guide'),
     getMonthlyPlan
   );
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
 router
   .route('/')
   .get(GetAllTours)

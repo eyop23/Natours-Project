@@ -59,7 +59,7 @@ reviewSchema.statics.calcualteAvaerageRatings = async function(tourId) {
       }
     }
   ]);
-  console.log(stats);
+  // console.log(stats);
   if (stats.length > 0) {
     await tourModel.findByIdAndUpdate(tourId, {
       ratingsQuantity: stats[0].nRating,
@@ -72,15 +72,16 @@ reviewSchema.statics.calcualteAvaerageRatings = async function(tourId) {
     });
   }
 };
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 reviewSchema.post('save', function() {
   //this points to current review
   this.constructor.calcualteAvaerageRatings(this.tour);
 });
-//to get the cuurent document  when we update n delete the review in ordre to calculate the rating in tour
+//to get the cuurent document  when we update n delete the review in order to calculate the rating in tour
 //findByIdAndUpdate and findByIdAndDelete can't access documentmideleware
 reviewSchema.pre(/^findOneAnd/, async function(next) {
   this.r = await this.findOne();
-  console.log(this.r);
+  // console.log(this.r);
   next();
 });
 reviewSchema.post(/^findOneAnd/, async function() {
