@@ -86,7 +86,7 @@ const tourSchema = new mongoose.Schema(
       address: String,
       description: String
     },
-    location: [
+    locations: [
       {
         type: {
           type: String,
@@ -99,6 +99,7 @@ const tourSchema = new mongoose.Schema(
         day: Number
       }
     ],
+
     guides: [
       {
         type: mongoose.Schema.ObjectId,
@@ -154,6 +155,8 @@ tourSchema.pre(/^find/, function(next) {
 });
 //Aggregattion MiddleWare
 tourSchema.pre('aggregate', function(next) {
+  const x = this.pipeline().find(obj => obj.hasOwnProperty('$geoNear'));
+  if (x) return next();
   this.pipeline().unshift({ $match: { secrteTour: { $ne: true } } });
   // console.log(this.pipeline());
   next();
