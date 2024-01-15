@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan'); //logger middleware
 const rateLimit = require('express-rate-limit');
@@ -13,8 +14,14 @@ const reviewRouter = require('./routes/review');
 const environment = process.env.NODE_ENV;
 
 const app = express();
+// pug temeplate for rendering
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // 1.GLOBAL MiddleWare(order of middleware matters)
 
+// SERVE STATIC FILES
+app.use(express.static('public'));
 //SET SECURE HTTP HEADERS
 app.use(helmet());
 
@@ -55,8 +62,6 @@ app.use(
     ]
   })
 );
-// SERVE STATIC FILES
-app.use(express.static('public'));
 
 //TEST MIDDLEWARE
 app.use((req, res, next) => {
@@ -65,7 +70,14 @@ app.use((req, res, next) => {
   // console.log(req.header);
   next();
 });
-
+// ROUTES
+app.get('/', (req, res, next) => {
+  res.status(200).render('base', {
+    tour: 'The Forset Hiker',
+    user: 'Eyob'
+  });
+  next();
+});
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
