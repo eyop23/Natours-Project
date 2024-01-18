@@ -7,8 +7,16 @@ exports.getTourOverView = catchAsync(async (req, res, next) => {
     tours
   });
 });
-exports.getTour = (req, res, next) => {
+exports.getTour = catchAsync(async (req, res, next) => {
+  let tourName = req.params.name
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  const tour = await Tour.find({ name: tourName });
+  console.log(tour[0].guides);
   res.status(200).render('tour', {
-    title: 'The Forest Hiker'
+    title: tour[0].name,
+    tour
   });
-};
+});
